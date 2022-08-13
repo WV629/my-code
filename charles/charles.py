@@ -74,13 +74,13 @@ class Spider(object):
         except:list1['ATAR'] = ''
 
         try:
-            list1['International fee'] = [i['subjectFee'] for i in json.loads(data['ocb.coursedetails.json'])['courseOfferings'] if i['studentType'] == 'International' and i['year']=='2023' and i['mode'] == 'On Campus' and i['placeType'] == 'Full Fee Paying'][0]
+            list1['International fee'] = [i['annualFeeFT'] for i in json.loads(data['ocb.coursedetails.json'])['courseOfferings'] if i['studentType'] == 'International' and i['year']=='2023' and i['mode'] == 'On Campus' and i['placeType'] == 'Full Fee Paying'][0]
             if list1['International fee'] is None:
                 list1['International fee'] = 'TBA'
         except:
             list1['International fee'] = "TBA"
         try:
-            list1['Domestic fee'] = [i['subjectFee'] for i in json.loads(data['ocb.coursedetails.json'])['courseOfferings'] if i['studentType'] == 'Domestic' and i['year']=='2023' and i['mode'] == 'On Campus' and i['placeType'] == 'Full Fee Paying'][0]
+            list1['Domestic fee'] = [i['annualFeeFT'] for i in json.loads(data['ocb.coursedetails.json'])['courseOfferings'] if i['studentType'] == 'Domestic' and i['year']=='2023' and i['mode'] == 'On Campus' and i['placeType'] == 'Full Fee Paying'][0]
             if list1['Domestic fee'] is None:
                 list1['Domestic fee'] = 'TBA'
         except:
