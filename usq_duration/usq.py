@@ -3,6 +3,8 @@
 
 TODO : https://www.unisq.edu.au/study
 """
+import re
+
 import requests
 from lxml import etree
 from threading import Thread
@@ -78,19 +80,25 @@ class Spider(object):
         list1['degree'] = degree
         list1['faculty'] = faculty.replace("\r\n",'').strip()
         html = self.get_html(href)
-        list1['entry requirements'] = ' '.join([i.strip() for i in html.xpath("//td[text()='ATAR']/following-sibling::td[1]//text()") if i !='']).replace("\r\n",'').strip()
+        list1['ATAR'] = ' '.join([i.strip() for i in html.xpath("//td[text()='ATAR']/following-sibling::td[1]//text()") if i !='']).replace("\r\n",'').strip()
         list1['mode'] = ' '.join([i.strip() for i in html.xpath("//div[contains(@class,'row pb-4 u-equal-height-columns')]/div[2]/ul//text()") if i !='']).replace("\r\n",'').strip()
         list1['location'] = ' '.join([i.strip() for i in html.xpath("//div[contains(@class,'row pb-4 u-equal-height-columns')]/div[4]/ul//text()") if i !='']).replace("\r\n",'').strip()
         list1['duration'] = ' '.join([i.strip() for i in html.xpath("//div[contains(@class,'row pb-4 u-equal-height-columns')]/div[6]/ul//text()") if i !='']).replace("\r\n",'').strip()
         list1['start'] = ' '.join([i.strip() for i in html.xpath("//div[contains(@class,'row pb-4 u-equal-height-columns')]/div[7]/ul//text()") if i !='']).replace("\r\n",'').strip()
-        list1['desc'] = ' '.join([i.strip() for i in html.xpath("//div[@id='overview']//text()") if i !='']).replace("\r\n",'').strip()
-        list1['careers'] = ' '.join([i.strip() for i in html.xpath("//div[@id='career-outcomes']//text()") if i !='']).replace("\r\n",'').strip()
-        list1['degree structure'] = ' '.join([i.strip() for i in html.xpath("//div[@id='degree-structure']//text()") if i !='']).replace("\r\n",'').strip()
+        list1['desc'] = ' '.join([i.strip() for i in html.xpath("//div[@id='overview']//text()") if i !='']).replace("\r\n",'').strip().replace('Overview   ','')
+        list1['careers'] = ' '.join([i.strip() for i in html.xpath("//div[@id='career-outcomes']//text()") if i !='']).replace("\r\n",'').strip().replace('Career outcomes   ','')
+        list1['degree structure'] = ' '.join([i.strip() for i in html.xpath("//div[@id='degree-structure']//text()") if i !='']).replace("\r\n",'').strip().replace('Degree structure  ','')
         list1['domestic_full'] = ' '.join([i.strip() for i in html.xpath("//td[contains(text(),'Domestic full')]/following-sibling::td/text()") if i !='']).replace("\r\n",'').strip().replace("AUD",'')
-        href = href+'/international'
+        href = href + '/international'
         html = self.get_html(href)
-        list1['international_full'] = ' '.join([i.strip() for i in html.xpath("//td[contains(text(),'On-location')]/following-sibling::td/text()") if i !='']).replace("\r\n",'').strip().replace("AUD",'')
-        datas.append(list1)
+        list1['Entry requirements'] = ' '.join(
+            [i.strip() for i in html.xpath("//div[@id='entry-requirements']/div[2]/div/div//text()") if
+             i != '']).replace("\r\n", '').strip()
+        trs = html.xpath("//h2[text()='Fees and scholarships']/../../../../..//tbody/tr")
+        for tr in trs:
+            list1['international Study Mode'] = re.sub('\s','',''.join(tr.xpath("./td[1]/text()")).replace('/Online',''))
+            list1['international Cost'] = ''.join(tr.xpath("./td[2]/text()")).replace('AUD ','')
+            datas.append(list1)
         print(list1)
 
     def save(self,datas):
