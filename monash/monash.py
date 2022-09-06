@@ -1,9 +1,4 @@
 #-*- coding:utf-8 -*-
-"""
-# create of datetime:2022/6/15 1:00
-----------
-# create of software: PyCharm
-"""
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from lxml import etree
@@ -12,10 +7,6 @@ import pandas as pd
 
 
 def get_html(url):
-    proxies = {
-        'http':'http://127.0.0.1:7890',
-        'https':'http://127.0.0.1:7890',
-    }
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36'
     }
@@ -72,16 +63,20 @@ def parse1(li,i,labels,faculty):
     list1['course_structure'] = ''.join(html.xpath('//*[@data-name="Course structure"]//text()')).strip().replace(
         "\r\n", '').replace("   ", '')
     domestic_csp = html.xpath("//*[text()='Full fee']/following-sibling::p/strong/text()")
-    if len(domestic_csp) == 2 or len(domestic_csp) == 1:
-        list1['domestic_csp'] = domestic_csp[0]
+    if len(domestic_csp) == 2:
+        list1['domestic_full'] = domestic_csp[1]
+    elif  len(domestic_csp) == 1:
+        list1['domestic_full'] = domestic_csp[0]
     else:
-        list1['domestic_csp'] = ''
+        list1['domestic_full'] = ''
     international_csp = get_html(list1['href'] + '?international=true').xpath(
-        "//*[text()='International fee']/following-sibling::p/strong/text()")
-    if len(international_csp) == 2 or len(international_csp) == 1:
-        list1['international_fee'] = international_csp[0]
+        "//h4[text()='International fee']/following-sibling::p/strong[contains(text(),'A$')]/text()")
+    if len(international_csp) == 2 :
+        list1['international_full'] = international_csp[1]
+    elif len(international_csp) == 1:
+        list1['international_full'] = international_csp[0]
     else:
-        list1['international_fee'] = ''
+        list1['international_full'] = ''
     list1['careers'] = ''.join(
         html.xpath("//*[contains(text(),'Careers')]/../preceding-sibling::p[1]/following-sibling::p//text()")).replace(
         'Careers', '')
@@ -105,4 +100,3 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(datas)
     df.to_excel("monash.xlsx",index=False)
-
