@@ -40,7 +40,7 @@ def parse(li,faculy,degrees,url):
     list1['international_csp'] = ''.join(html.xpath("//h4[@id='intl-fees']/following-sibling::div/div/p//text()"))
 
     trs = html.xpath("//h4[@id='dom-fees']/following-sibling::div//table/tr")
-    print(len(trs))
+
     if len(trs) != 0:
         for tr in trs:
             list1['domestic_location'] = tr.xpath("./td[1]/p/text()")[0]
