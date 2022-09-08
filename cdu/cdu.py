@@ -42,33 +42,28 @@ def parse1(url,faculty):
         divs = html.xpath(f"//div[@class='js-tab-list container--no-spacing-bottom study-area']/section[{index}]/div/div[2]/div/div/div/a")
         for div in divs:
             list1 = {}
-            list1['faculty'] = faculty
-            list1['degree_name'] = degree_name
-            list1['course_name'] = div.xpath("./text()")[0]
-            list1['url'] = urljoin(url,div.xpath("./@href")[0])
-            list1['duration'] = '; '.join(div.xpath("./../../../div[2]//div[@class='copy--s']/text()")).strip()
-            list1['domestic_location'] = ';'.join(
-                div.xpath("./../../../div[3]/div[@data-student-type='domestic']/text()"))
-            if ',' in list1['domestic_location']:
-                list1['domestic_location'] = list1['domestic_location'].split(",")[0]
-                list1['mode'] = ';'.join(div.xpath("./../../../div[3]/div[@data-student-type='domestic']/text()")).split(",")[1].strip()
-            if list1['domestic_location'] == 'Online':
-                list1['domestic_location'] = ''
-                list1['mode'] = 'Online'
-            list1['international_location'] = ';'.join(div.xpath("./../../../div[3]/div[@data-student-type='international']/text()"))
-            html1 = get_response(list1['url'])
-            list1['credit'] = ''.join(html1.xpath(".//h3[text()='Credit points required']/../text()"))
-            list1['desc'] = '\n'.join(html1.xpath(".//div[contains(@class,'overview')]//text()"))
-            list1['domestic_full'] = ''.join(html1.xpath(".//h4[text()='Commonwealth supported places']/following-sibling::p//text()"))
-            list1['entry_requirements'] = ''.join(html1.xpath(".//summary[@id='accordion-admission-criteria']/following-sibling::div//text()"))+''.join(html1.xpath("//summary[@id='accordion-essential-requirements']/following-sibling::div//text()"))
-            list1['ATAR'] = ''.join(html1.xpath(".//summary[@id='accordion-admission-criteria']/following-sibling::div//strong/text()")).replace("*",'')
-            list1['course_structure'] = ''.join(html1.xpath(".//*[@id='accordion-course-structure']/following-sibling::div//text()"))
-            international_full = ''.join(html1.xpath(".//*[@id='accordion-fees']/following-sibling::div/div[@data-student-type='international']//text()"))
-            list1['international_full'] = ''.join(re.findall("AUD  \$(.*?)\.",international_full))
+            list1['Faculty'] = faculty
+            list1['Degree'] = degree_name
+            list1['Course_name'] = div.xpath("./text()")[0]
+            list1['href'] = urljoin(url,div.xpath("./@href")[0])
+            list1['Duration'] = '; '.join(div.xpath("./../../../div[2]//div[@class='copy--s']/text()"))
+            list1['Location'] = ';'.join(div.xpath("./../../../div[3]/div[@data-student-type='domestic']/text()")).split(",")[0]
+            try:
+                list1['Mode'] = ';'.join(div.xpath("./../../../div[3]/div[@data-student-type='domestic']/text()")).split(",")[1]
+            except:
+                list1['Mode'] = ''
+
+            html1 = get_response(list1['href'])
+            list1['Credit'] = ''.join(html1.xpath("//h3[text()='Credit points required']/../text()"))
+            list1['Desc'] = '\n'.join(html1.xpath("//div[contains(@class,'overview')]//text()"))
+            list1['Domestic_full'] = ''.join(html1.xpath("//h4[text()='Commonwealth supported places']/following-sibling::p//text()"))
+            list1['Entry_requirements'] = ''.join(html1.xpath("//summary[@id='accordion-admission-criteria']/following-sibling::div//text()"))+''.join(html1.xpath("//summary[@id='accordion-essential-requirements']/following-sibling::div//text()"))
+            list1['ATAR'] = ''.join(html1.xpath("//summary[@id='accordion-admission-criteria']/following-sibling::div//strong/text()")).replace("*",'')
+            list1['course_structure'] = ''.join(html1.xpath("//*[@id='accordion-course-structure']/following-sibling::div//text()"))
+            international_full = ''.join(html1.xpath("//*[@id='accordion-fees']/following-sibling::div/div[@data-student-type='international']//text()"))
+            list1['International_full'] = ''.join(re.findall("AUD  \$(.*?)\.",international_full))
             datas.append(list1)
             print(list1)
-
-
         index = index + 1
 
 
