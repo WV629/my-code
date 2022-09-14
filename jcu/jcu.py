@@ -1,5 +1,4 @@
 #-*- coding:utf-8 -*-
-# TODO : https://www.cdu.edu.au/study
 import re
 import threading
 from urllib.parse import urljoin
@@ -130,9 +129,9 @@ def run(course_name,course_url,degree,Faculty):
         list1['Careers'] = re.sub("\s",' ',''.join(html.xpath("//div[@id='accordion_career']//p/text()")).strip())
         list1['Course_code'] = ''.join(html.xpath("//*[contains(text(),'ourse') and contains(text(),'ode')]/../../following-sibling::td/p/text()")).strip()
         list1['Entry_requirements'] = ' '.join(html.xpath("//h2[text()='Admission Requirements']/following-sibling::table//text()")).strip()
-        Entry_requirements = ''.join(html.xpath("//*[text()='Credit points']/../../following-sibling::td//text()")).strip()
-        if 'credit points' in Entry_requirements:
-            list1['Entry_requirements'] = Entry_requirements.split(" ")[0]
+        credit_points = ''.join(html.xpath("//*[text()='Credit points']/../../following-sibling::td//text()")).strip()
+        if 'credit points' in credit_points:
+            list1['Credit'] = credit_points.split(" ")[0]
         if list1['Location']=='' and list1['ATAR']=='' and list1['International_full']=='' and list1['Desc']=='' and list1['Careers']=='' and  list1['Course_code']=='' and list1['Entry_requirements']=='':
             return
         print(list1)
