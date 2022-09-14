@@ -61,8 +61,8 @@ def parse1(Faculty,degree,course):
     list1['Duration'] = year + ' ' + tt
     list1['Domestic_csp'] = ''.join(
         html.xpath("//div[@audience='domestic' and @class='--button-last']/strong/text()")).strip().replace("A$", '')
-    list1['Mode'] = ''.join(
-        html.xpath("//span[contains(text(),'Delivery mode')]/../following-sibling::dd[1]//text()")).strip()
+    list1['Mode'] = re.sub('\s',' ',''.join(
+        html.xpath("//span[contains(text(),'Delivery mode')]/../following-sibling::dd[1]//text()")).strip())
     list1['Credit'] = ''.join(
         html.xpath("//dt[contains(text(),'Total courses')]/following-sibling::dd[1]//text()")).strip()
     list1['Careers'] = '; '.join(
