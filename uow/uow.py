@@ -27,28 +27,31 @@ def parse(li,faculy,degrees,url):
     list1['ATAR'] = ''.join(html.xpath("//*[text()='ATAR-SR ']/../following-sibling::p[1]/text()")).strip()
     list1['careers'] = '; '.join(
         html.xpath("//*[text()='Career opportunities']/following-sibling::ul/li/text()")).strip()
-    print(list1)
     print("*" * 50)
     trs = html.xpath("//h4[@id='intl-fees']/following-sibling::div//table/tr")
-    print(len(trs))
+    flag = 0
     if len(trs) != 0 :
         for tr in trs:
+            flag = 1
             list1['international_location'] = tr.xpath("./td[1]/p/text()")[0]
             list1['international_mode'] = tr.xpath("./td[2]/p/text()")[0]
-            list1['international_session_fee'] = tr.xpath("./td[3]/p/text()")[0]
-            list1['international_full'] = tr.xpath("./td[4]/p/text()")[0]
+            international_session_fee = tr.xpath("./td[3]/p/text()")[0]
+            list1['international_session_fee'] = international_session_fee.split(" ")[0]
+            list1['international_full'] = tr.xpath("./td[4]/p/text()")[0].split(" ")[0]
     list1['international_csp'] = ''.join(html.xpath("//h4[@id='intl-fees']/following-sibling::div/div/p//text()"))
-
+    if flag == 1:
+        list1[' year_acquisition'] = international_session_fee.split(" ")[-1].replace("(",'').replace(")",'')
     trs = html.xpath("//h4[@id='dom-fees']/following-sibling::div//table/tr")
 
     if len(trs) != 0:
         for tr in trs:
             list1['domestic_location'] = tr.xpath("./td[1]/p/text()")[0]
             list1['domestic_mode'] = tr.xpath("./td[2]/p/text()")[0]
-            list1['domestic_session_fee'] = tr.xpath("./td[3]/p/text()")[0]
-            list1['domestic_full'] = tr.xpath("./td[4]/p/text()")[0]
+            list1['domestic_session_fee'] = tr.xpath("./td[3]/p/text()")[0].split(" ")[0]
+            list1['domestic_full'] = tr.xpath("./td[4]/p/text()")[0].split(" ")[0]
     list1['domestic_csp'] = ''.join(html.xpath("//h4[@id='dom-fees']/following-sibling::div/p//text()"))
     datas.append(list1)
+    print(list1)
 
 if __name__ == '__main__':
     datas = []
