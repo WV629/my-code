@@ -1,13 +1,4 @@
 #-*- coding:utf-8 -*-
-"""
-create of author:WV
-----------
-create of datetime:2022/8/11 14:59
-----------
-create of software: PyCharm
-----------
-TODO : https://www.acu.edu.au/study-at-acu/find-a-course
-"""
 import threading
 from urllib.parse import urljoin
 import requests
@@ -60,11 +51,30 @@ class Spider(object):
         list1['Degrees'] = Degrees
         list1['Course_name'] = ''.join(course.xpath("./a/span[2]/text()")).strip()
         list1['href'] = ''.join(course.xpath("./a/@href")).strip()
+        if '/current/' in list1['href']:
+            return
         html = self.get_html(list1['href'])
-        list1['Desc'] = ''.join(html.xpath("//div[@class='col-sm-12']/div/div[2]/div/div/div/div[2]//div[@id]/p//text()")).strip()
+        list1['Desc'] = ''.join(html.xpath("//div[@name='page-top']/section//div/div[2]/div/div/div/div[2]//div[@id]/p//text()")).strip()
+        if list1['Desc'] == '':
+            list1['Desc'] = ''.join(
+                html.xpath("//div[@name='page-top']/section//div/div[2]/div/div/div[@id]/p//text()")).strip()
+            if list1['Desc'] == '':
+                list1['Desc'] = ''.join(
+                    html.xpath("//h2[text()='Overview']/following-sibling::div//div[@id]/p//text()")).strip()
+                if list1['Desc'] == '':
+                    list1['Desc'] = ''.join(
+                        html.xpath("//div[@name='page-top']/section/div/div[@class='section'][1]//div[@id]/p//text()")).strip()
         list1['Duration'] = ' '.join([i.strip() for i in html.xpath("/html/body/div[2]/section/div/section[3]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div[1]/div/div[3]/div/p/text()")]).strip()
         list1['Location'] = ' '.join([i.strip() for i in html.xpath("/html/body/div[2]/section/div/section[3]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div[1]/div/div[2]/div/div[2]/ul/li/text()")]).strip().replace('– ','')
-        list1['Mode'] = 'Online'
+        try:
+            a = ' '.join([i.strip() for i in html.xpath("/html/body/div[2]/section/div/section[3]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div[1]/div/div[2]/div/div[2]/text()")]).strip().replace(':','')
+        except:a = ''
+        try:
+            b = [i.strip() for i in html.xpath("/html/body/div[2]/section/div/section[3]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div[1]/div/div[2]/div/div[2]/div/text()") if i != ''][0].strip().split(":")[0]
+        except:b = ''
+        list1['Mode'] = ', '.join([a,b]).replace('only.\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tRefer to','').strip(',').strip()
+        if list1['Mode'] == ', ':
+            list1['Mode'] = ''
         list1['Domestic_full'] = ' '.join([i.strip() for i in html.xpath("/html/body/div[2]/section/div/section[3]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li/text()")]).strip().split(": $")[-1]
         list1['International_full'] = ' '.join([i.strip() for i in html.xpath("/html/body/div[2]/section/div/section[3]/div/div/div[2]/div/div/div[2]/div/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li/text()")]).strip().split(": $")[-1]
         list1['Year_acquisition'] = ' '.join([i.strip() for i in html.xpath("/html/body/div[2]/section/div/section[3]/div/div/div[2]/div/div/div[1]/div/div[2]/div/div[2]/div/div[1]/div/div[2]/ul/li/text()")]).strip().split(": $")[0]
@@ -86,8 +96,10 @@ class Spider(object):
 
 
 if __name__ == '__main__':
+    print('start---------')
     datas = []
     url = 'https://www.flinders.edu.au/study/courses'
     spider = Spider(url)
     spider.main()
     spider.save()
+
